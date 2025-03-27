@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Polling Unit Results</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Party</th>
+            <th>Votes</th>
+        </tr>
+    </thead>
+    <tbody id="results_body"></tbody>
+</table>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+{% endblock %}
