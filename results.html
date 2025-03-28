@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="scripts.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Get Election Results</h1>
+        <label for="lga">Select LGA:</label>
+        <select id="lga"></select>
+
+        <label for="ward">Select Ward:</label>
+        <select id="ward"></select>
+
+        <label for="pu">Select Polling Unit:</label>
+        <select id="pu"></select>
+
+        <button onclick="getResults()">Get Results</button>
+        <div id="results"></div>
+    </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -6,10 +6,14 @@ app = Flask(__name__)
 # Database configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'aloh'
+app.config['MYSQL_PASSWORD'] = 'almiviolad'
 app.config['MYSQL_DB'] = 'bincomtest'
 
 mysql = MySQL(app)
+
+@app.route("/")
+def home():
+    return render_template("index.html")  # Renders index.html
 
 @app.route("/<int:state_id>/lga")
 def get_all_lga(state_id):
@@ -23,7 +27,7 @@ def get_all_lga(state_id):
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
-@app.route("/<int:state_id>/<int:lga_id>/ward")
+@app.route("/<int:state_id>/<int:lga_id>/wards")
 def get_all_wards(state_id, lga_id):
     try:
         with mysql.connection.cursor() as cursor:
@@ -39,11 +43,11 @@ def get_all_wards(state_id, lga_id):
 def get_all_pu(state_id, lga_id, ward_id):
     try:
         with mysql.connection.cursor() as cursor:
-            cursor.execute("SELECT polling_unit_id, polling_unit_name FROM polling_unit WHERE lga_id = %s AND ward_id = %s", (lga_id, ward_id))
+            cursor.execute("SELECT uniqueid, polling_unit_id, polling_unit_name FROM polling_unit WHERE lga_id = %s AND ward_id = %s", (lga_id, ward_id))
             pus = cursor.fetchall()
         if not pus:
             return jsonify({"error": "No polling unit found for this ward"}), 404
-        return jsonify([{"polling_unit_id": pu[0], "polling_unit_name": pu[1]} for pu in pus])
+        return jsonify([{"polling_unit_uniqueid": pu[0], "polling_unit_id": pu[1], "polling_unit_name": pu[2]} for pu in pus])
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
@@ -63,11 +67,11 @@ def get_all_parties():
 def get_pu_results(polling_unit_uniqueid):
     try:
         with mysql.connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM announced_pu_results WHERE polling_unit_uniqueid = %s", (polling_unit_uniqueid,))
+            cursor.execute("SELECT result_id, polling_unit_uniqueid, party_abbreviation, party_score FROM announced_pu_results WHERE polling_unit_uniqueid = %s", (polling_unit_uniqueid,))
             pu_results = cursor.fetchall()
         if not pu_results:
             return jsonify({"error": "No result found for this polling unit"}), 404
-        return jsonify([dict(zip([desc[0] for desc in cursor.description], row)) for row in pu_results])
+        return jsonify([{"result_id": pu_res[0], "polling_unit_uniqueid": pu_res[1], "party": pu_res[2], "score": pu_res[3]} for pu_res in pu_results])
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
