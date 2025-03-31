@@ -6,7 +6,7 @@
     <select id="lga" name="lga_id">
         <option value="">Select LGA</option>
         {% for lga in lgas %}
-        <option value="{{ lga.lga_id }}">{{ lga.lga_name }}</option>
+        <option value="{{ lga[0] }}">{{ lga[1] }}</option>
         {% endfor %}
     </select><label for="ward">Select Ward:</label>
 <select id="ward" name="ward_id" disabled>
