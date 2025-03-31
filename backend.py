@@ -28,6 +28,7 @@ def get_all_lga(state_id):
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
+
 @app.route("/<int:state_id>/<int:lga_id>/wards")
 def get_all_wards(state_id, lga_id):
     try:
