@@ -1,26 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Results</title>
-    <link rel="stylesheet" href="static/styles.css">
-    <script defer src="static/scripts.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>Get Election Results</h1>
-        <label for="lga">Select LGA:</label>
-        <select id="lga"></select>
+{% extends "base.html" %}
 
-        <label for="ward">Select Ward:</label>
-        <select id="ward"></select>
+{% block content %}
 
-        <label for="pu">Select Polling Unit:</label>
-        <select id="pu"></select>
+<h2>Get Election Results</h2><form action="/show_results" method="GET">
+    <label for="lga">Select LGA:</label>
+    <select id="lga" name="lga_id">
+        <option value="">Select LGA</option>
+        {% for lga in lgas %}
+        <option value="{{ lga.lga_id }}">{{ lga.lga_name }}</option>
+        {% endfor %}
+    </select><label for="ward">Select Ward:</label>
+<select id="ward" name="ward_id" disabled>
+    <option value="">Select Ward</option>
+</select>
 
-        <button onclick="getResults()">Get Results</button>
-        <div id="results"></div>
-    </div>
-</body>
-</html>
+<label for="pu">Select Polling Unit:</label>
+<select id="pu" name="polling_unit_uniqueid" disabled>
+    <option value="">Select Polling Unit</option>
+</select>
+
+<button type="submit">Get Results</button>
+
+</form><script>
+    document.getElementById("lga").addEventListener("change", function() {
+        let lgaId = this.value;
+        let wardDropdown = document.getElementById("ward");
+        let puDropdown = document.getElementById("pu");
+        wardDropdown.innerHTML = '<option value="">Select Ward</option>';
+        puDropdown.innerHTML = '<option value="">Select Polling Unit</option>';
+        wardDropdown.disabled = true;
+        puDropdown.disabled = true;
+        
+        if (lgaId) {
+            fetch(`/25/${lgaId}/wards`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(ward => {
+                        let option = document.createElement("option");
+                        option.value = ward.ward_id;
+                        option.textContent = ward.ward_name;
+                        wardDropdown.appendChild(option);
+                    });
+                    wardDropdown.disabled = false;
+                });
+        }
+    });
+
+    document.getElementById("ward").addEventListener("change", function() {
+        let lgaId = document.getElementById("lga").value;
+        let wardId = this.value;
+        let puDropdown = document.getElementById("pu");
+        puDropdown.innerHTML = '<option value="">Select Polling Unit</option>';
+        puDropdown.disabled = true;
+        
+        if (wardId) {
+            fetch(`/25/${lgaId}/${wardId}/pu`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(pu => {
+                        let option = document.createElement("option");
+                        option.value = pu.polling_unit_uniqueid;
+                        option.textContent = pu.polling_unit_name;
+                        puDropdown.appendChild(option);
+                    });
+                    puDropdown.disabled = false;
+                });
+        }
+    });
+</script>{% endblock %}
+
+
