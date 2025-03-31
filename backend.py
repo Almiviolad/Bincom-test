@@ -38,7 +38,7 @@ def get_all_wards(state_id, lga_id):
         print(wards)
         if not wards:
             return jsonify({"error": "No ward found for this LGA"}), 404
-        return jsonify([{"ward_id": ward[0], "ward_name": ward[1]} for ward in wards])
+        print (jsonify([{"ward_id": ward[0], "ward_name": ward[1]} for ward in wards]))
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
