@@ -15,6 +15,10 @@ mysql = MySQL(app)
 def home():
     return render_template("index.html")  # Renders index.html
 
+@app.route("/results")
+def results():
+    return render_template("results.html")
+
 @app.route("/<int:state_id>/lga")
 def get_all_lga(state_id):
     try:
