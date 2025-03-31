@@ -15,9 +15,6 @@ mysql = MySQL(app)
 def home():
     return render_template("index.html")  # Renders index.html
 
-@app.route("/results")
-def results():
-    return render_template("results.html")
 
 @app.route("/<int:state_id>/lga")
 def get_all_lga(state_id):
@@ -113,6 +110,10 @@ def post_pu_results():
         return jsonify({"message": "Polling unit and votes added successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/results")
+def results():
+    return render_template("results.html", lgas=get_all_lga(25))
 
 if __name__ == "__main__":
     app.run(debug=True)
