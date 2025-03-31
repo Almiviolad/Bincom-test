@@ -116,6 +116,7 @@ def results():
     with mysql.connection.cursor() as cursor:
         cursor.execute("SELECT lga_id, lga_name FROM lga WHERE state_id = 25")
         lgas = cursor.fetchall()
+        print(lgas)
     return render_template("results.html", lgas=lgas)
 
 if __name__ == "__main__":
