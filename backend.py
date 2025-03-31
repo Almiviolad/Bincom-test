@@ -113,7 +113,10 @@ def post_pu_results():
 
 @app.route("/results")
 def results():
-    return render_template("results.html", lgas=get_all_lga(25))
+    with mysql.connection.cursor() as cursor:
+        cursor.execute("SELECT lga_id, lga_name FROM lga WHERE state_id = 25")
+        lgas = cursor.fetchall()
+    return render_template("results.html", lgas=lgas)
 
 if __name__ == "__main__":
     app.run(debug=True)
