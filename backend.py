@@ -35,6 +35,7 @@ def get_all_wards(state_id, lga_id):
         with mysql.connection.cursor() as cursor:
             cursor.execute("SELECT ward_id, ward_name FROM ward WHERE lga_id = %s", (lga_id,))
             wards = cursor.fetchall()
+        print(wards)
         if not wards:
             return jsonify({"error": "No ward found for this LGA"}), 404
         return jsonify([{"ward_id": ward[0], "ward_name": ward[1]} for ward in wards])
