@@ -69,11 +69,11 @@ def get_all_parties():
 def get_pu_results(polling_unit_uniqueid):
     try:
         with mysql.connection.cursor() as cursor:
-            cursor.execute("SELECT result_id, polling_unit_uniqueid, party_abbreviation, party_score FROM announced_pu_results WHERE polling_unit_uniqueid = %s", (polling_unit_uniqueid,))
+            cursor.execute("SELECT party_abbreviation, party_score FROM announced_pu_results WHERE polling_unit_uniqueid = %s", (polling_unit_uniqueid,))
             pu_results = cursor.fetchall()
         if not pu_results:
             return jsonify({"error": "No result found for this polling unit"}), 404
-        return jsonify([{"result_id": pu_res[0], "polling_unit_uniqueid": pu_res[1], "party": pu_res[2], "score": pu_res[3]} for pu_res in pu_results])
+        return jsonify([{"party": pu_res[0], "votes": pu_res[1]} for pu_res in pu_results])
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 
@@ -92,7 +92,7 @@ def get_pu_results_in_lga(lga_id):
             lga_pu_results = cursor.fetchall()
         if not lga_pu_results:
             return jsonify({"error": "No polling unit results found for this LGA"}), 404
-        return jsonify([{"party": result[0], "total_score": result[1]} for result in lga_pu_results])
+        return jsonify([{"party": result[0], "votes": result[1]} for result in lga_pu_results])
     except Exception as err:
         return jsonify({"error": "Internal server error", "message": str(err)}), 500
 

@@ -1,26 +1,45 @@
-
 {% block content %}
 
-<h2>Get Election Results</h2><form action="/show_results" method="GET">
+<h2>Get Election Results</h2>
+<form id="resultsForm">
     <label for="lga">Select LGA:</label>
     <select id="lga" name="lga_id">
         <option value="">Select LGA</option>
         {% for lga in lgas %}
         <option value="{{ lga[0] }}">{{ lga[1] }}</option>
         {% endfor %}
-    </select><label for="ward">Select Ward:</label>
-<select id="ward" name="ward_id" disabled>
-    <option value="">Select Ward</option>
-</select>
+    </select>
 
-<label for="pu">Select Polling Unit:</label>
-<select id="pu" name="polling_unit_uniqueid" disabled>
-    <option value="">Select Polling Unit</option>
-</select>
+    <label for="ward">Select Ward:</label>
+    <select id="ward" name="ward_id" disabled>
+        <option value="">Select Ward</option>
+    </select>
 
-<button type="submit">Get Results</button>
+    <label for="pu">Select Polling Unit:</label>
+    <select id="pu" name="polling_unit_uniqueid" disabled>
+        <option value="">Select Polling Unit</option>
+    </select>
 
-</form><script>
+    <button type="submit">Get Results</button>
+</form>
+
+<!-- Results Table -->
+<div id="resultsContainer" style="display:none;">
+    <h3>Election Results</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Party</th>
+                <th>Votes</th>
+            </tr>
+        </thead>
+        <tbody id="resultsTableBody">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
     document.getElementById("lga").addEventListener("change", function() {
         let lgaId = this.value;
         let wardDropdown = document.getElementById("ward");
@@ -29,7 +48,7 @@
         puDropdown.innerHTML = '<option value="">Select Polling Unit</option>';
         wardDropdown.disabled = true;
         puDropdown.disabled = true;
-        
+
         if (lgaId) {
             fetch(`/25/${lgaId}/wards`)
                 .then(response => response.json())
@@ -51,7 +70,7 @@
         let puDropdown = document.getElementById("pu");
         puDropdown.innerHTML = '<option value="">Select Polling Unit</option>';
         puDropdown.disabled = true;
-        
+
         if (wardId) {
             fetch(`/25/${lgaId}/${wardId}/pu`)
                 .then(response => response.json())
@@ -66,6 +85,36 @@
                 });
         }
     });
-</script>{% endblock %}
 
+    document.getElementById("resultsForm").addEventListener("submit", function(event) {
+        event.preventDefault();
 
+        let lgaId = document.getElementById("lga").value;
+        let wardId = document.getElementById("ward").value;
+        let puId = document.getElementById("pu").value;
+        let url = puId ? `/get_pu_results?pu_id=${puId}` : `/get_pu_results_in_lga?lga_id=${lgaId}`;
+        let resultsContainer = document.getElementById("resultsContainer");
+        let resultsTableBody = document.getElementById("resultsTableBody");
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                resultsTableBody.innerHTML = ""; // Clear previous results
+
+                data.forEach(result => {
+                    let row = `<tr>
+                        <td>${result.party}</td>
+                        <td>${result.votes}</td>
+                    </tr>`;
+                    resultsTableBody.innerHTML += row;
+                });
+
+                resultsContainer.style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error fetching results:", error);
+            });
+    });
+</script>
+
+{% endblock %}
